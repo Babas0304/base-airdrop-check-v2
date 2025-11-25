@@ -32,6 +32,18 @@
             border-radius: 20px;
         }
     </style>
+
+    <!-- !!! FARCASTER FRAME META TAGS START HERE !!! -->
+    <!-- The image users will see in the feed. Replace the placeholder URL with your actual logo/banner -->
+    <meta property="fc:frame" content="vNext" />
+    <meta property="fc:frame:image" content="https://placehold.co/1200x630/0052FF/ffffff?text=BASE+Airdrop+Checker" />
+    <meta property="fc:frame:post_url" content="https://base-checker-airdrop.vercel.app/" />
+    <!-- Button 1: Directs users to the full web app to input their wallet -->
+    <meta property="fc:frame:button:1" content="Check Allocation Now" />
+    <meta property="fc:frame:button:1:action" content="link" />
+    <meta property="fc:frame:button:1:target" content="https://base-checker-airdrop.vercel.app/" />
+    <!-- !!! FARCASTER FRAME META TAGS END HERE !!! -->
+
 </head>
 <body class="bg-base-dark text-base-light min-h-screen flex items-center justify-center p-4 font-sans">
 
@@ -99,7 +111,7 @@
         // --- Allocation Functions ---
         const BASE_ALLOCATION_MIN = 1000;
         const BASE_ALLOCATION_MAX = 10000;
-        const TOKEN_SYMBOL = "$BASE"; // Ganti token symbol menjadi $BASE
+        const TOKEN_SYMBOL = "$BASE"; 
         const addressInput = document.getElementById('walletAddress');
         const resultBox = document.getElementById('resultBox');
         const resultMessage = document.getElementById('resultMessage');

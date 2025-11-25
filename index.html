@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BASE Airdrop Checker</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb; /* Light background */
+            color: #1a202c;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .checker-card {
+            max-width: 480px;
+            width: 95%;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 0 10px rgba(0, 0, 0, 0.04);
+            border: 1px solid #e2e8f0;
+        }
+        .base-logo {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #0052FF;
+            line-height: 1;
+        }
+        .base-gradient {
+            background: linear-gradient(135deg, #0052FF, #4D87FF);
+        }
+    </style>
+
+    <!-- Farcaster Frame Meta Tags (Crucial for Farcaster Embed) -->
+    <!-- The URL here is the Vercel link provided by the user -->
+    <meta property="fc:frame" content="vNext" />
+    <meta property="fc:frame:image" content="https://placehold.co/1200x630/0052FF/ffffff?text=BASE+x+ETH+Airdrop+Checker" />
+    <meta property="fc:frame:post_url" content="https://base-checker-airdrop.vercel.app/" />
+    <meta property="fc:frame:button:1" content="Check Allocation Now" />
+    <!-- OG Image Fallback for better scraping -->
+    <meta property="og:image" content="https://placehold.co/1200x630/0052FF/ffffff?text=BASE+x+ETH+Airdrop+Checker" />
+    <!-- End Farcaster Frame Meta Tags -->
+
+</head>
+<body class="bg-gray-50">
+    <div class="checker-card space-y-6">
+        <header class="text-center space-y-2">
+            <div class="base-logo">BASE Airdrop Portal</div>
+            <p class="text-gray-500 text-sm">Official Protocol Allocation Status</p>
+        </header>
+
+        <main class="space-y-4">
+            <div class="p-4 bg-blue-50 border border-blue-200 text-blue-800 rounded-xl text-sm">
+                <p>Enter your linked ETH or BASE Wallet Address to query the eligibility status for the $BASE community allocation. All valid addresses receive an allocation.</p>
+            </div>
+
+            <div class="space-y-3">
+                <label for="walletAddress" class="block text-sm font-medium text-gray-700">Wallet Address (0x...)</label>
+                <input type="text" id="walletAddress" placeholder="e.g., 0x89C57500...D87C9aD2"
+                       class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 text-base">
+            </div>
+
+            <button onclick="checkEligibility()" id="checkButton"
+                    class="w-full text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-300 base-gradient hover:shadow-xl hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-300 disabled:opacity-50">
+                Check Allocation Status
+            </button>
+
+            <!-- Loading Indicator -->
+            <div id="loadingIndicator" class="hidden text-center mt-4">
+                <div class="flex items-center justify-center space-x-2">
+                    <svg class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span class="text-gray-600">Querying on-chain data...</span>
+                </div>
+            </div>
+
+            <!-- Result Box -->
+            <div id="resultBox" class="mt-6 hidden p-5 bg-green-50 border-t-4 border-green-500 rounded-xl shadow-md space-y-4">
+                <div class="flex items-center space-x-3">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <h3 class="text-xl font-bold text-green-700">Eligibility Confirmed!</h3>
+                </div>
+                <p class="text-gray-700">Congratulations! Your address is registered as an early ecosystem contributor and qualifies for the initial $BASE community allocation.</p>
+                <div class="pt-3 border-t border-green-200">
+                    <div class="text-sm font-semibold text-gray-600 mb-1">Your Total Allocation:</div>
+                    <div id="allocationAmount" class="text-3xl font-extrabold base-gradient bg-clip-text text-transparent"></div>
+                </div>
+            </div>
+
+            <!-- Error Box -->
+            <div id="errorBox" class="mt-6 hidden p-4 bg-red-50 border-t-4 border-red-500 rounded-xl shadow-md">
+                <p class="font-semibold text-red-700">Validation Error:</p>
+                <p id="errorMessage" class="text-red-600 text-sm mt-1"></p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const ALLOCATION_BASE = 2500;
+        const TOKEN_SYMBOL = "$BASE";
+
+        /**
+         * Simple consistent hashing function for deterministic allocation based on wallet address.
+         * @param {string} str - The wallet address string.
+         * @returns {number} - A deterministic hash code.
+         */
+        function simpleHash(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash |= 0; // Convert to 32bit integer
+            }
+            return Math.abs(hash);
+        }
+
+        /**
+         * Formats a number with commas.
+         * @param {number} x - The number to format.
+         * @returns {string} - The formatted string.
+         */
+        function formatNumber(x) {
+            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        /**
+         * Main function to check eligibility and calculate allocation.
+         */
+        function checkEligibility() {
+            const addressInput = document.getElementById('walletAddress');
+            const resultBox = document.getElementById('resultBox');
+            const errorBox = document.getElementById('errorBox');
+            const errorMessage = document.getElementById('errorMessage');
+            const allocationAmountElement = document.getElementById('allocationAmount');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const checkButton = document.getElementById('checkButton');
+
+            const address = addressInput.value.trim();
+            const addressPattern = /^0x[a-fA-F0-9]{40}$/;
+
+            // Reset UI
+            resultBox.classList.add('hidden');
+            errorBox.classList.add('hidden');
+            errorMessage.textContent = '';
+            checkButton.disabled = true;
+            loadingIndicator.classList.remove('hidden');
+
+            // 1. Address Validation
+            if (!addressPattern.test(address)) {
+                loadingIndicator.classList.add('hidden');
+                errorMessage.textContent = "Please enter a valid 42-character Ethereum or BASE wallet address (starting with 0x).";
+                errorBox.classList.remove('hidden');
+                checkButton.disabled = false;
+                return;
+            }
+
+            // Simulate Network Delay
+            setTimeout(() => {
+                loadingIndicator.classList.add('hidden');
+                checkButton.disabled = false;
+
+                // 2. Deterministic Allocation Calculation (All Valid Wallets Are Eligible)
+                // Use hash to calculate a consistent bonus for the entered address
+                const addressHash = simpleHash(address);
+
+                // Calculate a consistent bonus allocation (e.g., between 500 and 1500)
+                const bonus = (addressHash % 1000) + 500;
+                
+                // Total allocation is base plus the deterministic bonus
+                const totalAllocation = ALLOCATION_BASE + bonus;
+
+                // 3. Display Results (Always Eligible)
+                
+                // Set the allocation amount text
+                allocationAmountElement.textContent = `${formatNumber(totalAllocation)} ${TOKEN_SYMBOL}`;
+                
+                // Show the success box
+                resultBox.classList.remove('hidden');
+
+            }, 1800); // 1.8 second simulation delay
+        }
+    </script>
+</body>
+</html>

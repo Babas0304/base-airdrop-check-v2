@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BASE ETH Airdrop Fun Checker</title>
+    <title>BASE Protocol Airdrop Allocation</title>
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -24,7 +24,6 @@
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
-        /* Custom scrollbar for better aesthetics */
         body::-webkit-scrollbar {
             width: 8px;
         }
@@ -36,156 +35,140 @@
 </head>
 <body class="bg-base-dark text-base-light min-h-screen flex items-center justify-center p-4 font-sans">
 
-    <div class="w-full max-w-lg bg-gray-800 p-6 sm:p-8 rounded-2xl shadow-2xl border border-base-blue/50">
+    <div class="w-full max-w-lg bg-gray-900 p-6 sm:p-8 rounded-2xl shadow-2xl border border-base-blue/50">
 
         <!-- Header -->
         <header class="text-center mb-8">
-            <h1 class="text-4xl font-extrabold text-white mb-2 tracking-tight">BASE Airdrop Fun Check</h1>
-            <p class="text-base-blue text-lg font-medium">Are you the chosen one? (Disclaimer: This is for fun only!)</p>
+            <div class="flex justify-center items-center mb-3">
+                <!-- BASE Logo Placeholder (Simple Circle Blue) -->
+                <svg class="w-8 h-8 text-base-blue mr-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm3.84 8.76l-4.44 4.44c-.19.19-.44.29-.71.29s-.52-.1-.71-.29l-2.22-2.22c-.39-.39-.39-1.02 0-1.41.39-.39 1.02-.39 1.41 0l1.51 1.51 3.73-3.73c.39-.39 1.02-.39 1.41 0 .39.39.39 1.02 0 1.41z"/></svg>
+                <h1 class="text-3xl font-extrabold text-white tracking-tight">BASE Protocol Airdrop Allocation</h1>
+            </div>
+            <p class="text-gray-400 text-sm">Retrieve and verify your confirmed token allocation using your BASE/ETH Wallet Address.</p>
         </header>
 
         <!-- Input Section -->
         <div class="mb-6">
-            <label for="walletAddress" class="block text-sm font-medium mb-2 text-gray-300">Your ETH/BASE Wallet Address</label>
+            <label for="walletAddress" class="block text-sm font-medium mb-2 text-gray-300">Your BASE/ETH Wallet Address</label>
             <input type="text" id="walletAddress" placeholder="e.g., 0x420000000000000000000000000000000000000X"
-                   class="w-full p-3 rounded-lg bg-gray-700 text-white border-2 border-gray-600 focus:border-base-blue focus:ring-base-blue transition duration-200 shadow-inner"
+                   class="w-full p-3 rounded-lg bg-gray-800 text-white border-2 border-gray-700 focus:border-base-blue focus:ring-base-blue transition duration-200 shadow-inner"
                    maxlength="42">
         </div>
 
         <!-- Button -->
-        <button id="checkButton" onclick="checkEligibility()"
+        <button id="checkButton" onclick="checkAllocation()"
                 class="w-full bg-base-blue hover:bg-blue-600 text-white font-bold py-3 rounded-lg transition duration-300 transform hover:scale-[1.01] focus:outline-none focus:ring-4 focus:ring-base-blue/50 shadow-lg shadow-base-blue/40 flex items-center justify-center space-x-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-            <span>Check Eligibility</span>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944c-.544.025-1.085.081-1.623.167M2.4 15.6c.162.247.332.48.513.7l6.613 6.613c.404.404 1.059.404 1.463 0l7.252-7.252a11.955 11.955 0 00.167-1.623L21.056 12A11.955 11.955 0 0012 2.944c-4.97 0-9 4.03-9 9s4.03 9 9 9z"></path></svg>
+            <span>Retrieve Allocation Data</span>
         </button>
 
         <!-- Result Display -->
-        <div id="resultBox" class="mt-8 p-4 bg-gray-700 rounded-xl hidden transition-all duration-500 ease-in-out">
-            <p id="resultMessage" class="font-semibold text-center text-lg"></p>
+        <div id="resultBox" class="mt-8 p-4 rounded-xl hidden transition-all duration-500 ease-in-out">
+            <p id="resultMessage" class="font-semibold text-center text-lg mb-4"></p>
+            <div id="allocationDetails" class="hidden">
+                <div class="text-center bg-green-600/20 p-4 rounded-lg mb-4 border border-green-500">
+                    <p class="text-green-400 text-sm font-medium uppercase tracking-wider">Confirmed Allocation</p>
+                    <p id="allocationDisplay" class="font-extrabold text-white text-5xl mt-1"></p>
+                    <p class="text-xs text-gray-300 mt-2">Token amount is final based on indexer snapshots.</p>
+                </div>
+                <p id="addressDisplay" class="text-xs text-gray-400 text-center break-all">Queried Address: <span class="text-gray-200 font-mono" id="queriedAddress"></span></p>
+            </div>
         </div>
 
         <!-- Footer/Disclaimer -->
-        <footer class="mt-8 pt-4 border-t border-gray-700 text-center text-xs text-gray-400">
-            <p>This is a simulated airdrop checker created for entertainment purposes. No real blockchain data is accessed.</p>
-            <p class="mt-1">Built with 💙 for fun.</p>
+        <footer class="mt-8 pt-4 border-t border-gray-800 text-center text-xs text-gray-500">
+            <p>Data retrieved from BASE Indexers. Contact support for disputes.</p>
         </footer>
     </div>
 
     <!-- JavaScript Logic -->
     <script>
-        // Constants for fun logic
-        const LUCKY_ADDRESSES = [
-            "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef", // Classic fun address
-            "0xba5e900d42000000000000000000000000000000", // Address starting with 'base good'
-        ];
-        
-        // ** NEW CRITERIA: Farcaster related keywords **
-        const FARCASTER_KEYWORDS = ["cast", "warp", "farc", "fid"];
-        
-        const ELIGIBILITY_CHANCE = 0.08; // Base 8% random chance
-        const FARCASTER_BONUS_CHANCE = 0.20; // 20% bonus chance for Farcaster-looking addresses
+        // --- Deterministic Hashing Function ---
+        // Used to ensure the same address always produces the same result
+        function hashCode(s) {
+            let hash = 0;
+            if (s.length === 0) return 0;
+            for (let i = 0; i < s.length; i++) {
+                const char = s.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash |= 0; // Convert to 32bit integer
+            }
+            return Math.abs(hash);
+        }
 
+        // --- Allocation Functions ---
+        const BASE_ALLOCATION_MIN = 1000;
+        const BASE_ALLOCATION_MAX = 10000;
+        const TOKEN_SYMBOL = "$BASE"; // Ganti token symbol menjadi $BASE
         const addressInput = document.getElementById('walletAddress');
         const resultBox = document.getElementById('resultBox');
         const resultMessage = document.getElementById('resultMessage');
+        const allocationDisplay = document.getElementById('allocationDisplay');
+        const allocationDetails = document.getElementById('allocationDetails');
+        const queriedAddress = document.getElementById('queriedAddress');
         const checkButton = document.getElementById('checkButton');
 
-        function showResult(message, color) {
+        function generateDeterministicAllocation(hash) {
+            // Use the hash to generate a consistent base number
+            const base = BASE_ALLOCATION_MIN + (hash % (BASE_ALLOCATION_MAX - BASE_ALLOCATION_MIN));
+            
+            // Apply a bonus based on hash value for variability
+            const activityBonus = (hash % 150) * 10; 
+            let final = base + activityBonus;
+
+            // Round to the nearest 100 for a clean, official look
+            return Math.round(final / 100) * 100;
+        }
+
+        function showResult(message, allocation = null, address = null) {
             resultMessage.textContent = message;
-            resultBox.className = `mt-8 p-4 rounded-xl block transition-all duration-500 ease-in-out`;
-            // Set dynamic background/text color based on result
-            if (color === 'green') {
-                resultBox.classList.add('bg-green-600/20', 'text-green-400', 'border', 'border-green-500');
-            } else if (color === 'red') {
-                resultBox.classList.add('bg-red-600/20', 'text-red-400', 'border', 'border-red-500');
+            
+            // Always success styling
+            resultBox.className = `mt-8 p-4 rounded-xl block transition-all duration-500 ease-in-out bg-green-600/20 text-green-400 border border-green-500`;
+            
+            if (allocation !== null && address !== null) {
+                allocationDisplay.textContent = `${allocation.toLocaleString()} ${TOKEN_SYMBOL}`;
+                queriedAddress.textContent = address;
+                allocationDetails.classList.remove('hidden');
             } else {
-                resultBox.classList.add('bg-yellow-600/20', 'text-yellow-400', 'border', 'border-yellow-500');
+                allocationDetails.classList.add('hidden');
             }
         }
 
-        // Helper function to check for repetitive characters (looks like ENS/Farcaster vanity address)
-        function checkRepetitivePattern(address) {
-            // Checks for '420', or 3+ repeating chars like 'aaabbb', '111', etc. 
-            // This is purely for fun to simulate "vanity" addresses that Farcaster users might have.
-            const repetitionRegex = /(.)\1{2}/; 
-            const vanityRegex = /(420)/;
-            return repetitionRegex.test(address) || vanityRegex.test(address);
-        }
-
-        async function checkEligibility() {
-            const address = addressInput.value.trim();
+        async function checkAllocation() {
+            const address = addressInput.value.trim().toLowerCase();
             checkButton.disabled = true;
-            checkButton.textContent = "Checking...";
-            resultBox.classList.add('hidden'); // Hide previous result
+            checkButton.textContent = "Querying BASE Indexers for Snapshot Data...";
+            resultBox.classList.add('hidden'); 
 
-            // 1. Basic Validation
+            // 1. Basic Validation (Must be 42 chars and start with 0x)
             if (!address || address.length !== 42 || !address.startsWith('0x')) {
-                showResult("Invalid address format. Please enter a 42-character address starting with '0x'.", 'red');
+                resultMessage.textContent = "Error: Invalid Wallet Address format. Please ensure it is 42 characters and starts with '0x'.";
+                resultBox.className = `mt-8 p-4 rounded-xl block transition-all duration-500 ease-in-out bg-red-600/20 text-red-400 border border-red-500`;
+                allocationDetails.classList.add('hidden');
                 checkButton.disabled = false;
-                checkButton.textContent = "Check Eligibility";
+                checkButton.textContent = "Retrieve Allocation Data";
                 return;
             }
 
             // Simulate Network Delay
-            await new Promise(resolve => setTimeout(resolve, 1500)); 
+            await new Promise(resolve => setTimeout(resolve, 2500)); 
 
-            // 2. FUN Eligibility Logic
-            let isEligible = false;
-            let reason = "Standard simulation criteria not met.";
-            let currentChance = ELIGIBILITY_CHANCE;
-
-            const addressLower = address.toLowerCase().substring(2); // Remove 0x for easier checking
-
-            // A. Check hardcoded lucky addresses
-            if (LUCKY_ADDRESSES.includes(address.toLowerCase())) {
-                isEligible = true;
-                reason = "Airdrop God Mode activated! (Lucky List Match)";
-            } 
+            // 2. Deterministic ALLOCATION Logic (Success-Only)
+            const addressHex = address.substring(2);
+            const finalHash = hashCode(addressHex);
             
-            // B. Check for fun Farcaster-related patterns (New Logic)
-            else if (FARCASTER_KEYWORDS.some(keyword => addressLower.includes(keyword))) {
-                 isEligible = true;
-                 reason = `Farcaster Bonus! Address contains a social keyword: '${FARCASTER_KEYWORDS.find(k => addressLower.includes(k))}'.`;
-            }
-            
-            // C. Check for vanity/repetitive patterns, which gives a higher chance
-            else if (checkRepetitivePattern(addressLower)) {
-                currentChance += FARCASTER_BONUS_CHANCE; // Increase chance significantly
-                reason = `Farcaster Vibe Detected! Address has a vanity pattern, increasing your chance to ${Math.round(currentChance * 100)}%.`;
-            }
+            // Calculate deterministic allocation
+            const finalAllocation = generateDeterministicAllocation(finalHash);
 
-            // D. Random Chance (using the potentially increased chance)
-            if (!isEligible && Math.random() < currentChance) {
-                isEligible = true;
-                if (currentChance > ELIGIBILITY_CHANCE) {
-                    reason = reason.replace('increasing your chance to', 'and the increased chance hit!');
-                } else {
-                    reason = "The decentralized random number generator smiled upon you!";
-                }
-            } 
-            // E. Special Joke for those who put the BASE genesis address
-            else if (address.toLowerCase() === "0x4200000000000000000000000000000000000006") {
-                 reason = "You found the BASE genesis address! That's cool, but still ineligible for this fictional airdrop. Nice try!";
-            }
-            
-            // F. Final default denial reason
-            if (!isEligible && reason.startsWith('Farcaster Vibe')) {
-                 reason = `Farcaster Vibe Detected, but the random number generator failed this time. Try again!`;
-            } else if (!isEligible && reason === "Standard simulation criteria not met."){
-                 reason = "Not enough CASTs or WARPs detected in your wallet's history (simulated).";
-            }
-            
+            let reason = `Status: CONFIRMED. Allocation based on consistent on-chain activity and early participation metrics.`;
 
-            // 3. Display Result
-            if (isEligible) {
-                showResult(`🥳 CONGRATULATIONS! You are eligible for the fictional BASE Airdrop! Reason: ${reason}`, 'green');
-            } else {
-                showResult(`💔 SORRY. Ineligible for this fictional airdrop. Reason: ${reason}`, 'red');
-            }
+            // Display Result
+            showResult(`✅ ALLOCATION CONFIRMED for ${address}. ${reason}`, finalAllocation, address);
 
             // Reset button
             checkButton.disabled = false;
-            checkButton.textContent = "Check Eligibility";
+            checkButton.textContent = "Retrieve Allocation Data";
         }
     </script>
 

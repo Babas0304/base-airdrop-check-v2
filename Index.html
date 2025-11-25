@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BASE ETH Airdrop Fun Checker</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'base-blue': '#0052FF',
+                        'base-dark': '#01111E',
+                        'base-light': '#F6F6F6',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        /* Custom scrollbar for better aesthetics */
+        body::-webkit-scrollbar {
+            width: 8px;
+        }
+        body::-webkit-scrollbar-thumb {
+            background-color: #0052FF;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body class="bg-base-dark text-base-light min-h-screen flex items-center justify-center p-4 font-sans">
+
+    <div class="w-full max-w-lg bg-gray-800 p-6 sm:p-8 rounded-2xl shadow-2xl border border-base-blue/50">
+
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-extrabold text-white mb-2 tracking-tight">BASE Airdrop Fun Check</h1>
+            <p class="text-base-blue text-lg font-medium">Are you the chosen one? (Disclaimer: This is for fun only!)</p>
+        </header>
+
+        <!-- Input Section -->
+        <div class="mb-6">
+            <label for="walletAddress" class="block text-sm font-medium mb-2 text-gray-300">Your ETH/BASE Wallet Address</label>
+            <input type="text" id="walletAddress" placeholder="e.g., 0x420000000000000000000000000000000000000X"
+                   class="w-full p-3 rounded-lg bg-gray-700 text-white border-2 border-gray-600 focus:border-base-blue focus:ring-base-blue transition duration-200 shadow-inner"
+                   maxlength="42">
+        </div>
+
+        <!-- Button -->
+        <button id="checkButton" onclick="checkEligibility()"
+                class="w-full bg-base-blue hover:bg-blue-600 text-white font-bold py-3 rounded-lg transition duration-300 transform hover:scale-[1.01] focus:outline-none focus:ring-4 focus:ring-base-blue/50 shadow-lg shadow-base-blue/40 flex items-center justify-center space-x-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            <span>Check Eligibility</span>
+        </button>
+
+        <!-- Result Display -->
+        <div id="resultBox" class="mt-8 p-4 bg-gray-700 rounded-xl hidden transition-all duration-500 ease-in-out">
+            <p id="resultMessage" class="font-semibold text-center text-lg"></p>
+        </div>
+
+        <!-- Footer/Disclaimer -->
+        <footer class="mt-8 pt-4 border-t border-gray-700 text-center text-xs text-gray-400">
+            <p>This is a simulated airdrop checker created for entertainment purposes. No real blockchain data is accessed.</p>
+            <p class="mt-1">Built with 💙 for fun.</p>
+        </footer>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Constants for fun logic
+        const LUCKY_ADDRESSES = [
+            "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef", // Classic fun address
+            "0xba5e900d42000000000000000000000000000000", // Address starting with 'base good'
+        ];
+        const ELIGIBILITY_CHANCE = 0.08; // 8% random chance of being "eligible"
+        const ELIGIBLE_KEYWORDS = ["420", "Babe", "Base", "Eth", "007"]; // Keywords in hex that might grant eligibility
+
+        const addressInput = document.getElementById('walletAddress');
+        const resultBox = document.getElementById('resultBox');
+        const resultMessage = document.getElementById('resultMessage');
+        const checkButton = document.getElementById('checkButton');
+
+        function showResult(message, color) {
+            resultMessage.textContent = message;
+            resultBox.className = `mt-8 p-4 rounded-xl block transition-all duration-500 ease-in-out`;
+            // Set dynamic background/text color based on result
+            if (color === 'green') {
+                resultBox.classList.add('bg-green-600/20', 'text-green-400', 'border', 'border-green-500');
+            } else if (color === 'red') {
+                resultBox.classList.add('bg-red-600/20', 'text-red-400', 'border', 'border-red-500');
+            } else {
+                resultBox.classList.add('bg-yellow-600/20', 'text-yellow-400', 'border', 'border-yellow-500');
+            }
+        }
+
+        async function checkEligibility() {
+            const address = addressInput.value.trim();
+            checkButton.disabled = true;
+            checkButton.textContent = "Checking...";
+            resultBox.classList.add('hidden'); // Hide previous result
+
+            // 1. Basic Validation
+            if (!address || address.length !== 42 || !address.startsWith('0x')) {
+                showResult("Invalid address format. Please enter a 42-character address starting with '0x'.", 'red');
+                checkButton.disabled = false;
+                checkButton.textContent = "Check Eligibility";
+                return;
+            }
+
+            // Simulate Network Delay
+            await new Promise(resolve => setTimeout(resolve, 1500)); 
+
+            // 2. FUN Eligibility Logic
+            let isEligible = false;
+            let reason = "Standard simulation criteria not met.";
+
+            const addressLower = address.toLowerCase();
+
+            // A. Check hardcoded lucky addresses
+            if (LUCKY_ADDRESSES.includes(addressLower)) {
+                isEligible = true;
+                reason = "Airdrop God Mode activated! (Lucky List Match)";
+            } 
+            // B. Check for fun keywords
+            else if (ELIGIBLE_KEYWORDS.some(keyword => addressLower.includes(keyword.toLowerCase()))) {
+                isEligible = true;
+                reason = `Address contains a 'Magic Word' (${ELIGIBLE_KEYWORDS.find(k => addressLower.includes(k.toLowerCase()))}).`;
+            }
+            // C. Random Chance
+            else if (Math.random() < ELIGIBILITY_CHANCE) {
+                isEligible = true;
+                reason = "The decentralized random number generator smiled upon you!";
+            } 
+            // D. Special Joke for those who put the BASE genesis address
+            else if (addressLower === "0x4200000000000000000000000000000000000006") {
+                 reason = "You found the BASE genesis address! That's cool, but still ineligible for this fictional airdrop. Nice try!";
+            }
+
+            // 3. Display Result
+            if (isEligible) {
+                showResult(`🥳 CONGRATULATIONS! You are eligible for the fictional BASE Airdrop! Reason: ${reason}`, 'green');
+            } else {
+                showResult(`💔 SORRY. Ineligible for this fictional airdrop. Try again later! Reason: ${reason}`, 'red');
+            }
+
+            // Reset button
+            checkButton.disabled = false;
+            checkButton.textContent = "Check Eligibility";
+        }
+    </script>
+
+</body>
+</html>

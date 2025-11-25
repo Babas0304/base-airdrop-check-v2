@@ -78,8 +78,12 @@
             "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef", // Classic fun address
             "0xba5e900d42000000000000000000000000000000", // Address starting with 'base good'
         ];
-        const ELIGIBILITY_CHANCE = 0.08; // 8% random chance of being "eligible"
-        const ELIGIBLE_KEYWORDS = ["420", "Babe", "Base", "Eth", "007"]; // Keywords in hex that might grant eligibility
+        
+        // ** NEW CRITERIA: Farcaster related keywords **
+        const FARCASTER_KEYWORDS = ["cast", "warp", "farc", "fid"];
+        
+        const ELIGIBILITY_CHANCE = 0.08; // Base 8% random chance
+        const FARCASTER_BONUS_CHANCE = 0.20; // 20% bonus chance for Farcaster-looking addresses
 
         const addressInput = document.getElementById('walletAddress');
         const resultBox = document.getElementById('resultBox');
@@ -97,6 +101,15 @@
             } else {
                 resultBox.classList.add('bg-yellow-600/20', 'text-yellow-400', 'border', 'border-yellow-500');
             }
+        }
+
+        // Helper function to check for repetitive characters (looks like ENS/Farcaster vanity address)
+        function checkRepetitivePattern(address) {
+            // Checks for '420', or 3+ repeating chars like 'aaabbb', '111', etc. 
+            // This is purely for fun to simulate "vanity" addresses that Farcaster users might have.
+            const repetitionRegex = /(.)\1{2}/; 
+            const vanityRegex = /(420)/;
+            return repetitionRegex.test(address) || vanityRegex.test(address);
         }
 
         async function checkEligibility() {
@@ -119,34 +132,55 @@
             // 2. FUN Eligibility Logic
             let isEligible = false;
             let reason = "Standard simulation criteria not met.";
+            let currentChance = ELIGIBILITY_CHANCE;
 
-            const addressLower = address.toLowerCase();
+            const addressLower = address.toLowerCase().substring(2); // Remove 0x for easier checking
 
             // A. Check hardcoded lucky addresses
-            if (LUCKY_ADDRESSES.includes(addressLower)) {
+            if (LUCKY_ADDRESSES.includes(address.toLowerCase())) {
                 isEligible = true;
                 reason = "Airdrop God Mode activated! (Lucky List Match)";
             } 
-            // B. Check for fun keywords
-            else if (ELIGIBLE_KEYWORDS.some(keyword => addressLower.includes(keyword.toLowerCase()))) {
-                isEligible = true;
-                reason = `Address contains a 'Magic Word' (${ELIGIBLE_KEYWORDS.find(k => addressLower.includes(k.toLowerCase()))}).`;
+            
+            // B. Check for fun Farcaster-related patterns (New Logic)
+            else if (FARCASTER_KEYWORDS.some(keyword => addressLower.includes(keyword))) {
+                 isEligible = true;
+                 reason = `Farcaster Bonus! Address contains a social keyword: '${FARCASTER_KEYWORDS.find(k => addressLower.includes(k))}'.`;
             }
-            // C. Random Chance
-            else if (Math.random() < ELIGIBILITY_CHANCE) {
+            
+            // C. Check for vanity/repetitive patterns, which gives a higher chance
+            else if (checkRepetitivePattern(addressLower)) {
+                currentChance += FARCASTER_BONUS_CHANCE; // Increase chance significantly
+                reason = `Farcaster Vibe Detected! Address has a vanity pattern, increasing your chance to ${Math.round(currentChance * 100)}%.`;
+            }
+
+            // D. Random Chance (using the potentially increased chance)
+            if (!isEligible && Math.random() < currentChance) {
                 isEligible = true;
-                reason = "The decentralized random number generator smiled upon you!";
+                if (currentChance > ELIGIBILITY_CHANCE) {
+                    reason = reason.replace('increasing your chance to', 'and the increased chance hit!');
+                } else {
+                    reason = "The decentralized random number generator smiled upon you!";
+                }
             } 
-            // D. Special Joke for those who put the BASE genesis address
-            else if (addressLower === "0x4200000000000000000000000000000000000006") {
+            // E. Special Joke for those who put the BASE genesis address
+            else if (address.toLowerCase() === "0x4200000000000000000000000000000000000006") {
                  reason = "You found the BASE genesis address! That's cool, but still ineligible for this fictional airdrop. Nice try!";
             }
+            
+            // F. Final default denial reason
+            if (!isEligible && reason.startsWith('Farcaster Vibe')) {
+                 reason = `Farcaster Vibe Detected, but the random number generator failed this time. Try again!`;
+            } else if (!isEligible && reason === "Standard simulation criteria not met."){
+                 reason = "Not enough CASTs or WARPs detected in your wallet's history (simulated).";
+            }
+            
 
             // 3. Display Result
             if (isEligible) {
                 showResult(`🥳 CONGRATULATIONS! You are eligible for the fictional BASE Airdrop! Reason: ${reason}`, 'green');
             } else {
-                showResult(`💔 SORRY. Ineligible for this fictional airdrop. Try again later! Reason: ${reason}`, 'red');
+                showResult(`💔 SORRY. Ineligible for this fictional airdrop. Reason: ${reason}`, 'red');
             }
 
             // Reset button

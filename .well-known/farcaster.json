@@ -1,0 +1,14 @@
+{
+  "accountAssociation": {
+    "type": "farcaster",
+    "fid": <249937> 
+  },
+  "frame": {
+    "version": "1",
+    "name": "Base Checker Airdrop", 
+    "description": "Mini App untuk memeriksa airdrop.",
+    "homeUrl": "<https://base-checker-airdrop.vercel.app/>",
+    "iconUrl": "<https://base-checker-airdrop.vercel.app/>/icon.png",
+    "splashImageUrl": "<https://base-checker-airdrop.vercel.app/>/splash.png" 
+  }
+}
